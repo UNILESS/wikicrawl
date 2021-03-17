@@ -33,4 +33,5 @@ soup = getdoc(Url_title)
 if title == None:
     print("Title could not be found")
 else:
-    print(soup)
+    for docs in soup:
+        print(docs.get_text())
