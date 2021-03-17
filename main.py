@@ -13,23 +13,23 @@ headers = {
 Url = "https://ko.wikipedia.org/wiki/"
 
 
-def getTitle(url):
+def getdoc(url):
     try:
         soup = BeautifulSoup(urlopen(Url_title).read(), "html5lib")
     except HTTPError as e:
         print(e)
     try:
         bs = BeautifulSoup(urlopen(Url_title).read(), "html5lib")
-        title = bs.body.h1
+        doc = bs.find_all('span', {'class': 'toctext'})
     except AttributeError as e:
         return None
-    return title
+    return doc
 
 
 title = urllib.parse.quote(input("검색할 단어를 입력해주세요. \n"))
 Url_title = (Url + str(title).replace("'", ""))
 
-soup = getTitle(Url_title)
+soup = getdoc(Url_title)
 if title == None:
     print("Title could not be found")
 else:
