@@ -1,4 +1,7 @@
+import urllib
 import requests
+from urllib.request import urlopen
+from urllib.request import HTTPError
 from bs4 import BeautifulSoup
 
 session = requests.Session()
@@ -9,8 +12,25 @@ headers = {
 }
 Url = "https://ko.wikipedia.org/wiki/"
 
-title = input("검색할 단어를 입력해주세요. ")
 
-Url_title = Url + title
+def getTitle(url):
+    try:
+        soup = BeautifulSoup(urlopen(Url_title).read(), "html5lib")
+    except HTTPError as e:
+        print(e)
+    try:
+        bs = BeautifulSoup(urlopen(Url_title).read(), "html5lib")
+        title = bs.body.h1
+    except AttributeError as e:
+        return None
+    return title
 
-soup = BeautifulSoup(session.get(Url_title, headers=headers).content, "html.parser")
+
+title = urllib.parse.quote(input("검색할 단어를 입력해주세요. \n"))
+Url_title = (Url + str(title).replace("'", ""))
+
+soup = getTitle(Url_title)
+if title == None:
+    print("Title could not be found")
+else:
+    print(soup)
