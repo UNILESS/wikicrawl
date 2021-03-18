@@ -22,7 +22,7 @@ def getdoc(url):
         bs = BeautifulSoup(urlopen(Url_title).read(), "html5lib")
         doc = bs.find_all('span', {'class': 'image'})
         # doc = bs.find_all({'p'})
-        # doc = bs.find_all('span', {'class': 'toctext'})
+        doc = bs.find_all('span', {'class': 'toctext'})
     except AttributeError as e:
         return None
     return doc
