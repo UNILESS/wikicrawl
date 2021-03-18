@@ -30,9 +30,9 @@ def getdoc(url):
 
 title = urllib.parse.quote(input("검색할 단어를 입력해주세요. \n"))
 Url_title = (Url + str(title).replace("'", ""))
-
 soup = getdoc(Url_title)
-if title == None:
+
+if title is None:
     print("Title could not be found")
 else:
     for docs in soup:
