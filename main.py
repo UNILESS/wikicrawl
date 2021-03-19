@@ -31,6 +31,6 @@ word = urllib.parse.quote(input("검색할 단어를 입력해주세요. \n"))
 Url_word = (url + str(word).replace("'", ""))
 
 content = scrapeWiki(Url_word)
-print('Title: {}'.format(content.title))
+print('문서명: {}'.format(content.title))
 print('URL: {}'.format(content.url))
 print(content.body)
