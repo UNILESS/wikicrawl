@@ -1,13 +1,15 @@
 import urllib
 import requests
+from html_table_parser import parser_functions as parser
 from bs4 import BeautifulSoup
 
 
 class Content:
-    def __init__(self, url, title, body):
+    def __init__(self, url, title, body, tables):
         self.url = url
         self.title = title
         self.body = body
+        self.tables = tables
 
 
 def getPage(url):
@@ -19,7 +21,13 @@ def scrapeWiki(url):
     bs = getPage(url)
     title = bs.find('h1').text
     lines = bs.select('p')
+    '''table = bs.select('table')
+    for i in range(0, len(table)):
+        tables = parser.make2d(table[i])
+        print(tables)'''
     body = '\n'.join([line.text for line in lines])
+    # tables_result = '\n'.join([tables.text for tables in tables])
+
     return Content(url, title, body)
 
 
@@ -32,3 +40,4 @@ content = scrapeWiki(Url_word)
 print('문서명: {}'.format(content.title))
 print('URL: {}'.format(content.url))
 print(content.body)
+print(content.tables_result)
