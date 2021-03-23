@@ -27,7 +27,6 @@ def scrapeWiki(url):
         print(tables)'''
     body = '\n'.join([line.text for line in lines])
     # tables_result = '\n'.join([tables.text for tables in tables])
-
     return Content(url, title, body)
 
 
