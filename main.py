@@ -55,39 +55,47 @@ conn.commit()
 
 row = cursor.fetchone()
 
-if row[3] == 'N':
-    cursor.execute(
-        f"UPDATE ta_table set stat = 'I'"
-    )
-    cursor.execute(
-        f"INSERT INTO scrap_table (connect_type, try,  input_date) VALUES ('TA', 1, \"{input_time}\")"
-    )
-    print("진행")
-    content = scrapeWiki(Url_word)
-    print('문서명: {}'.format(content.title))
-    print('URL: {}'.format(content.url))
+count = cursor.execute(
+    f"SELECT COUNT(stat) FROM ta_table"
+)
 
-    tags = content.body.replace('"', "")
-    print(tags)
-    # DB 저장
-    process_time.insert(1, str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
-    process_time = process_time[0].replace('"', '')
-    cursor.execute(
-        f"update ta_table set result_tag = \"{tags}\", process_date = \"{process_time}\", stat = 'Y'"
-    )
-    conn.commit()
-    cursor.execute(
-        f"UPDATE scrap_table set process_date = \"{process_time}\""
-    )
-    conn.commit()
-
-    check1 = "SELECT * FROM scrap_table"
-    cursor.execute(check1)
-    conn.commit()
-
-    row = cursor.fetchone()
-
-    if row[7] >= 1:
+for i in (0, count):
+    # count 열 손 봐야됨
+    if row[3] == 'N':
         cursor.execute(
-            f"UPDATE scrap_table set try = {row[7]+1} "
+            f"UPDATE ta_table set stat = 'I'"
         )
+        cursor.execute(
+            f"INSERT INTO scrap_table (connect_type, try,  input_date) VALUES ('TA', 1, \"{input_time}\")"
+        )
+        print("진행")
+        content = scrapeWiki(Url_word)
+        print('문서명: {}'.format(content.title))
+        print('URL: {}'.format(content.url))
+
+        tags = content.body.replace('"', "")
+        print(tags)
+        # DB 저장
+        process_time.insert(1, str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+        process_time = process_time[0].replace('"', '')
+        cursor.execute(
+            f"update ta_table set result_tag = \"{tags}\", process_date = \"{process_time}\", stat = 'Y'"
+        )
+        conn.commit()
+        cursor.execute(
+            f"UPDATE scrap_table set process_date = \"{process_time}\""
+        )
+        conn.commit()
+
+        check1 = "SELECT * FROM scrap_table"
+        cursor.execute(check1)
+        conn.commit()
+
+        row = cursor.fetchone()
+
+        if row[7] >= 1:
+            cursor.execute(
+                f"UPDATE scrap_table set try = {row[7] + 1} "
+            )
+
+
