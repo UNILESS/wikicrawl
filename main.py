@@ -41,14 +41,14 @@ url = "https://ko.wikipedia.org/wiki/"
 word = urllib.parse.quote(input("검색할 단어를 입력해주세요. \n"))
 Url_word = url + str(word).replace("'", "")
 print(Url_word)
-input_time = list(reversed(input_time))
+input_time.insert(1, str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
 
 cursor.execute(
-    "INSERT INTO ta_table (url, stat, input_date) VALUES (%s, %s ,%s);", (Url_word, 'N', input_time)
+    f"INSERT INTO ta_table (url, stat, input_date) VALUES (\"{Url_word}\", 'N', \"{input_time}\")"
 )
 
 cursor.execute(
-    "SELECT @ROWNUM:=@ROWNUM+1, A.* FROM ta_table A, (SELECT @ROWNUM:=0) R;"
+    f"SELECT @ROWNUM:=@ROWNUM+1, A.* FROM ta_table A, (SELECT @ROWNUM:=0) R;"
 )
 
 conn.commit()
