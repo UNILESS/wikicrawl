@@ -58,7 +58,9 @@ row = cursor.fetchone()
 if row[3] == 'N':
     cursor.execute(
         f"UPDATE ta_table set stat = 'I'"
-        f"INSERT INTO scrap_table (connect_type, try,  input_date, stat) VALUES (\"TA\", 1, {input_time}, \"I\")"
+    )
+    cursor.execute(
+        f"INSERT INTO scrap_table (connect_type, try,  input_date) VALUES ('TA', 1, \"{input_time}\")"
     )
     print("진행")
     content = scrapeWiki(Url_word)
@@ -75,7 +77,7 @@ if row[3] == 'N':
     )
     conn.commit()
     cursor.execute(
-        f"UPDATE scrap_table set stat = 'Y', process_date = {process_time}"
+        f"UPDATE scrap_table set process_date = \"{process_time}\""
     )
     conn.commit()
 
