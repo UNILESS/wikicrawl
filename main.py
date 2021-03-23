@@ -47,22 +47,25 @@ input_time.insert(1, str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
 cursor.execute(
     f"INSERT INTO ta_table (url, stat, input_date) VALUES (\"{Url_word}\", 'N', \"{input_time}\")"
 )
-
-'''cursor.execute(
-    f"SELECT @rownum : @rownum + 1 AS IDX, * FROM ta_table, (SELECT @rownum: = 0)"
-)'''
-
 conn.commit()
 
-content = scrapeWiki(Url_word)
-print('문서명: {}'.format(content.title))
-print('URL: {}'.format(content.url))
-
-tags = content.body.replace('"', "")
-print(tags)
-# DB 저장
-process_time.insert(1, str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
-cursor.execute(
-    f"update ta_table set process_date = \"{process_time}\", result_tag = \"{tags}\""
-)
+check = "SELECT * FROM ta_table"
+cursor.execute(check)
 conn.commit()
+
+row = cursor.fetchone()
+
+if row[3] == 'N':
+    content = scrapeWiki(Url_word)
+    print('문서명: {}'.format(content.title))
+    print('URL: {}'.format(content.url))
+
+    tags = content.body.replace('"', "")
+    print(tags)
+    # DB 저장
+    process_time.insert(1, str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+    cursor.execute(
+        f"update ta_table set process_date = \"{process_time}\", result_tag = \"{tags}\""
+    )
+    conn.commit()
+
