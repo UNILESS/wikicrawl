@@ -1,6 +1,5 @@
 import urllib
 import requests
-from html_table_parser import parser_functions as parser
 from bs4 import BeautifulSoup
 import pymysql
 import datetime
@@ -34,47 +33,89 @@ def scrapeWiki(url):
 input_time = []
 process_time = []
 
-conn = pymysql.connect(host="127.0.0.1", user="root", password="root", db="pythonDB", charset="utf8")
+conn = pymysql.connect(host="192.168.0.109", user="root", password="1111", db="pythondb", charset="utf8")
 cursor = conn.cursor()
 
 url = "https://ko.wikipedia.org/wiki/"
 
 word = urllib.parse.quote(input("검색할 단어를 입력해주세요. \n"))
 Url_word = url + str(word).replace("'", "")
-print(Url_word)
 input_time.insert(1, str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
 
 cursor.execute(
-    f"INSERT INTO ta_table (url, stat, input_date) VALUES (\"{Url_word}\", 'N', \"{input_time}\")"
+    f"INSERT INTO ta_table (url_key ,url, stat, input_date) VALUES (\"{word}\", \"{Url_word}\", 'N', \"{input_time}\")"
 )
 conn.commit()
 
-check = "SELECT * FROM ta_table"
+check = "SELECT stat FROM ta_table"
 cursor.execute(check)
 conn.commit()
+row = cursor.fetchall()
+print(len(row))
+print(row)
 
-row = cursor.fetchone()
+if len(row) == 1:
+    row_num = 1
+elif len(row) >= 1:
+    row_num = len(row) - 1
 
-count = cursor.execute(
-    f"SELECT COUNT(stat) FROM ta_table"
-)
+loopbreak = True
+for i in (0, row_num):
+    if row[i][0] == 'N':
+        check = "SELECT url_key FROM scrap_table"
+        cursor.execute(check)
+        conn.commit()
+        row = cursor.fetchall()
+        for j in row:
+            print(j)
+            if word == j[0]:
+                cursor.execute(
+                    f"UPDATE ta_table set stat = 'I'"
+                )
+                cursor.execute(
+                    f"UPDATE scrap_table set try = try + 1"
+                )
 
-for i in (0, count):
-    # count 열 손 봐야됨
-    if row[3] == 'N':
+                print("중복 키값 진행")
+                content = scrapeWiki(Url_word)
+                print('문서명: {}'.format(content.title))
+                print('URL: {}'.format(content.url))
+
+                tags = content.body.replace('"', "")
+
+                # DB 저장
+                process_time.insert(1, str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+                process_time = process_time[0].replace('"', '')
+                cursor.execute(
+                    f"update ta_table set result_tag = \"{tags}\", process_date = \"{process_time}\", stat = 'Y'"
+                )
+                conn.commit()
+                cursor.execute(
+                    f"UPDATE scrap_table set process_date = \"{process_time}\""
+                )
+                loopbreak = False
+                break
+        if loopbreak == False:
+            break
+
+
         cursor.execute(
             f"UPDATE ta_table set stat = 'I'"
         )
         cursor.execute(
-            f"INSERT INTO scrap_table (connect_type, try,  input_date) VALUES ('TA', 1, \"{input_time}\")"
+            f"INSERT INTO scrap_table (url_key, connect_type, try,  input_date) VALUES (\"{word}\",'TA', 1, \"{input_time}\")"
         )
-        print("진행")
+        check = "SELECT try FROM scrap_table"
+        cursor.execute(check)
+        conn.commit()
+        row = cursor.fetchone()
+
+        print("정상 진행")
         content = scrapeWiki(Url_word)
         print('문서명: {}'.format(content.title))
         print('URL: {}'.format(content.url))
-
         tags = content.body.replace('"', "")
-        print(tags)
+
         # DB 저장
         process_time.insert(1, str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
         process_time = process_time[0].replace('"', '')
@@ -92,10 +133,4 @@ for i in (0, count):
         conn.commit()
 
         row = cursor.fetchone()
-
-        if row[7] >= 1:
-            cursor.execute(
-                f"UPDATE scrap_table set try = {row[7] + 1} "
-            )
-
 
